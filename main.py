@@ -5,8 +5,8 @@
 # FROM ZERO TO PYTHON HERO series
 # Script No#3: Simple game called: Koło Fortuny (Wheel of fortune)
 # File created: 08.01.17
-# Last modified: 00.00.17
-# Version: P.3.001-0 [P:Prototype, F:Final]
+# Last modified: 15.01.17
+# Version: P.3.001-A [P:Prototype, F:Final]
 
 import os
 import random
@@ -34,7 +34,7 @@ VALUES = {  0: [    'Drive',
             6: [    'Bolesław Prus',
                     'Adam Mickiewicz']}
 
-WHEEL = ['BANKRUT', 10, 25, 50, 100, 200, 250, 500, 1000, 1500, 2000, '+']
+WHEEL = ['BANKRUT', 10, 25, 50, 100, 150, 200, 250, 300, 500, 600, 1000, 1500, 2000, '+']
 SUP = []
 TUP = []
 
@@ -96,20 +96,35 @@ def start_new_game():
             if check_pass():
                 quest_pass = True
                 break
-            while key != 'L':
+            while key not in ['L', 'H']:
                 key = input('\nZakręć kołem fortuny [L] lub odgadnij hasło [H]: ').upper()
             if key == 'L':
-                wheel = random.randint(0,len(WHEEL) - 1)
+                wheel = random.randint(0, len(WHEEL) - 1)
                 wheel_points = WHEEL[wheel]
                 key = None
+            elif key == 'H':
+                key = None
+                print ('Wpisz hasło i naciśnij ENTER')
+                passw = input().upper()
+                if passw == question_original:
+                    print ('Hasło prawidłowe! Zyskałeś bonus')
+                    points += round(points * 0.25)
+                    break
+                else:
+                    print ('Nieprawidłowe hasło, utrata 0.25 punktów')
+                    points -= round(points * 0.25)
+                while key != 'A':
+                    key = input('\nNaciśnij klawisz [A] i zatwierdź klawiszem ENTER: ').upper()
             print ('Wynik losowania koła fortuny: {0}\n'.format(wheel_points))
             if wheel_points not in ['BANKRUT', '+']:
                 sign = input('Zgadnij literę: ').upper()
                 result = check_sign(sign, question_original)
                 print ('Znak {0} wystąpił {1} razy w zgadywanym haśle'.format(sign, result))
                 if result == 0:
+                    print ('Utrata liczby prób')
                     lives -= 1
                     if lives == 0:
+                        print ('Utracono wszystkie próby, koniec gry :-(')
                         break
                 points += result * wheel_points
             elif wheel_points == '+':
@@ -119,9 +134,15 @@ def start_new_game():
                 print ('Utrata punktów')
                 points = 0
             while key != 'A':
-                key = input('\nNaciśnij klawisz [A] i zatwierdź klawiszem ENTER').upper()
+                key = input('\nNaciśnij klawisz [A] i zatwierdź klawiszem ENTER: ').upper()
+        os.system('clear')
+        print ('Zdobyłeś {0} punków!'.format(points))
         key = input('\nKontynuuj [T] lub zakończ grę [N]: ').upper()
         if key == 'T':
+            global SUP
+            global TUP
+            SUP = []
+            TUP = []
             continue
         else:
             break
