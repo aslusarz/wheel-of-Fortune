@@ -5,8 +5,8 @@
 # FROM ZERO TO PYTHON HERO series
 # Script No#3: Simple game called: Koło Fortuny (Wheel of fortune)
 # File created: 08.01.17
-# Last modified: 15.01.17
-# Version: P.3.001-A [P:Prototype, F:Final]
+# Last modified: 26.01.17
+# Version: P.3.001-B [P:Prototype, F:Final]
 
 import os
 import random
@@ -35,8 +35,6 @@ VALUES = {  0: [    'Drive',
                     'Adam Mickiewicz']}
 
 WHEEL = ['BANKRUT', 10, 25, 50, 100, 150, 200, 250, 300, 500, 600, 1000, 1500, 2000, '+']
-SUP = []
-TUP = []
 
 def random_category():
     category = random.randint(0, 5)
@@ -48,7 +46,7 @@ def random_question(category):
     question = random.randint(0, categories_length - 1)
     return VALUES[category][question].upper()
 
-def print_question(question):
+def print_question(question, SUP, TUP):
     new_question = ''
     for l in question:
         if l in SUP:
@@ -59,18 +57,18 @@ def print_question(question):
             new_question += ' _ '
         if l not in TUP and l != ' ':
             TUP.append(l)
-    return new_question
+    return (new_question, TUP)
 
-def check_sign(sign, question):
+def check_sign(sign, question, SUP):
     i = 0
     for l in question:
         if l == sign and l not in SUP:
             i += 1
     if i > 0 and sign not in SUP:
         SUP.append(sign)
-    return i
+    return (i, SUP)
 
-def check_pass():
+def check_pass(SUP, TUP):
     len_1 = len(SUP)
     len_2 = len(TUP)
     if len_1 == len_2:
@@ -81,6 +79,8 @@ def check_pass():
 def start_new_game():
     game_continue = True
     while game_continue:
+        SUP = []
+        TUP = []
         points = 0
         lives = 5
         quest_pass = False
@@ -90,10 +90,13 @@ def start_new_game():
         while quest_pass != True:
             os.system('clear')
             key = ''
+            computed_question = print_question(question_original, SUP, TUP)
+            prnt_question = computed_question[0]
+            TUP = computed_question[1]
             print ('PUNKTY: {0} | Pozostało prób: {1}'.format(points, lives))
             print ('Wylosowana kategoria: {0}'.format(category_name))
-            print ('Hasło: {0}'.format(print_question(question_original)))
-            if check_pass():
+            print ('Hasło: {0}'.format(prnt_question))
+            if check_pass(SUP, TUP):
                 quest_pass = True
                 break
             while key not in ['L', 'H']:
@@ -118,7 +121,9 @@ def start_new_game():
             print ('Wynik losowania koła fortuny: {0}\n'.format(wheel_points))
             if wheel_points not in ['BANKRUT', '+']:
                 sign = input('Zgadnij literę: ').upper()
-                result = check_sign(sign, question_original)
+                computed_result = check_sign(sign, question_original, SUP)
+                result = computed_result[0]
+                SUP = computed_result[1]
                 print ('Znak {0} wystąpił {1} razy w zgadywanym haśle'.format(sign, result))
                 if result == 0:
                     print ('Utrata liczby prób')
@@ -139,14 +144,11 @@ def start_new_game():
         print ('Zdobyłeś {0} punków!'.format(points))
         key = input('\nKontynuuj [T] lub zakończ grę [N]: ').upper()
         if key == 'T':
-            global SUP
-            global TUP
-            SUP = []
-            TUP = []
+            del (SUP)
+            del (TUP)
             continue
         else:
             break
-
 
 def main():
     key = ''
